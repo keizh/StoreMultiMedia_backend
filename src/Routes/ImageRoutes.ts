@@ -2,9 +2,60 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import ImageModel from "../models/ImageModel";
 import { commentOBJ, ImageDocInterface } from "../types";
+import { v2 as cloudinary } from "cloudinary";
+
+const uploads = multer({
+  storage: multer.diskStorage({}),
+});
 
 export const imageRouter = Router();
 // RESPONSIBLE FOR UPLOADING IMAGE
+imageRouter.post(
+  "/img",
+  uploads.array("image", 10),
+  async (req: Request, res: Response) => {
+    // @ts-ignore
+    const files = req.files;
+    const { userId } = req.user;
+    const { albumId, name, tags, isFavorite, person, comments } = req.body;
+    try {
+      const savedImages: ImageDocInterface[] = [];
+      files.forEach(async (file) => {
+        const uploaded = await cloudinary.uploader.upload(file.path);
+        const newImage: ImageDocInterface = new ImageModel({
+          imgURL: uploaded.secure_url,
+          public_id: uploaded.public_id,
+          imgOwnerId: userId,
+          albumId,
+          name,
+          tags,
+          size: file.size,
+          person: "",
+          comments: [],
+          isFavorite: false,
+        });
+        const newImageSaved: ImageDocInterface = await newImage.save();
+        savedImages.push(newImageSaved);
+      });
+      res.status(200).json({ message: "Image has been uploaded", savedImages });
+    } catch (err) {
+      const mssg =
+        err instanceof Error ? err.message : "Failed to upload image";
+      res.status(500).json({ message: mssg });
+    }
+  }
+);
+
+// imageId: string;
+// imgURL: string;
+// imgOwnerId: string;
+// albumId: string;
+// name?: string;
+// tags?: string[];
+// person?: string;
+// isFavorite?: boolean;
+// comments?: commentOBJ[];
+// size: string;
 
 // RESPONSIBLE FOR MARKING THE STAR FAVORITE
 imageRouter.post(
@@ -105,12 +156,17 @@ imageRouter.delete(
     try {
       const { userId } = req.user;
       const { imageId } = req.params;
+      const Img: ImageDocInterface | null = await ImageModel.findOne({
+        imageId,
+        imgOwnerId: userId,
+      });
       const deletedImg: ImageDocInterface | null =
         await ImageModel.findOneAndDelete({
           imageId,
           imgOwnerId: userId,
         });
-      if (deletedImg) {
+      if (deletedImg && Img) {
+        await cloudinary.uploader.destroy(Img.public_id);
         res.status(200).json({ message: `Image Successfully deleted` });
       } else {
         throw new Error(`Failed to Delete Image`);

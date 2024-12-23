@@ -44,6 +44,8 @@ export type commentOBJ = {
 
 export interface ImageInterface {
   imageId: string;
+  imgURL: string;
+  public_id: string;
   imgOwnerId: string;
   albumId: string;
   name?: string;
@@ -56,12 +58,14 @@ export interface ImageInterface {
 
 export interface ImageDocInterface extends Document {
   imageId: string;
-  albumId: string;
+  imgURL: string;
+  public_id: string;
   imgOwnerId: string;
+  albumId: string;
   name?: string;
   tags?: string[];
   person?: string;
-  isFavorite?: string;
+  isFavorite?: boolean;
   comments?: commentOBJ[];
   size: string;
 }

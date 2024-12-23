@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import AlbumModel from "../models/AlbumModel";
-import { AlbumDocInterface } from "../types";
+import { AlbumDocInterface, AlbumInterface } from "../types";
+import ImageModel from "../models/ImageModel";
+import { v2 as cloudinary } from "cloudinary";
 
 export const AlbumRouter = Router();
 
@@ -100,12 +102,20 @@ AlbumRouter.delete(
 
     const { userId } = req.user;
     try {
-      const album: AlbumDocInterface | null = await AlbumModel.findOne({
+      const album: AlbumInterface | null = await AlbumModel.findOne({
         albumId,
-      });
+      }).lean();
+
       if (album && album?.ownerId.toString() === userId.toString()) {
+        const imgLinkedToThisAlbum = await ImageModel.find(
+          { albumId },
+          { public_id: 1, _id: 0 }
+        ).lean();
+        const publicIDs = imgLinkedToThisAlbum.map((ele) => ele.public_id);
+
         const deletedAlbum: AlbumDocInterface | null =
           await AlbumModel.findOneAndDelete({ albumId });
+        await cloudinary.api.delete_resources(publicIDs);
         res.status(200).json({ message: "Album Successfully deleted" });
       } else if (album && album?.ownerId.toString() != userId.toString()) {
         res.status(403).json({ message: "Only Album Onwer can Delete" });

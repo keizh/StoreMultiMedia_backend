@@ -10,7 +10,15 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
       default: uuidv4,
       index: true,
     },
+    imgURL: {
+      type: String,
+      require: true,
+    },
     imgOwnerId: {
+      type: String,
+      required: true,
+    },
+    public_id: {
       type: String,
       required: true,
     },
