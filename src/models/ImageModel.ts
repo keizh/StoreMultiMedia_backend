@@ -51,6 +51,6 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
   { timestamps: true }
 );
 
-const ImageModel = mongoose.model<ImageInterface>("Album", ImageSchema);
+const ImageModel = mongoose.model<ImageInterface>("Image", ImageSchema);
 
 export default ImageModel;
