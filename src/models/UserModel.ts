@@ -1,30 +1,24 @@
 import mongoose from "mongoose";
-import { UserInterface } from "../types";
+import { User } from "../types";
+import { v4 as uuidv4 } from "uuid";
 
-const UserSchema = new mongoose.Schema<UserInterface>(
+const UserSchema = new mongoose.Schema<User>(
   {
+    userId: {
+      type: String,
+      required: true,
+      index: true,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       index: true,
     },
-    password: {
-      type: String,
-      default: "outh route used",
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    oauth: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true }
 );
 
-const UserModel = mongoose.model<UserInterface>("User", UserSchema);
+const UserModel = mongoose.model<User>("User", UserSchema);
 
 export default UserModel;

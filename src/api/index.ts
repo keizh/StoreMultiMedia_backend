@@ -1,8 +1,11 @@
 import "dotenv/config";
 import express, { Express, Response, Request } from "express";
 import cors from "cors";
-import authRouter from "./Routes/AuthRoutes";
-import dbConnect from "./utils/dbConnectFunction";
+import authRouter from "../Routes/AuthRoutes";
+import dbConnect from "../utils/dbConnectFunction";
+import { v2 as cloudinary } from "cloudinary";
+import { AlbumRouter } from "../Routes/AlbumRoute";
+import { imageRouter } from "../Routes/ImageRoutes";
 dbConnect();
 
 const app: Express = express();
@@ -20,11 +23,22 @@ const corsOptions: {
   //   credentails: true,
   optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded());
-app.use("/api/v1/auth", authRouter);
 // /api/v1/auth/google/oauth/callback
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
+
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/album", AlbumRouter);
+app.use("/api/v1/image", imageRouter);
+
 app.get("/", (req: Request, res: Response): void => {
   res.status(200).send("working");
 });

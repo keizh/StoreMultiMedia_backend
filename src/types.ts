@@ -1,31 +1,59 @@
 import { Document, Types } from "mongoose";
 
-// to be used for frontend
-export interface UserInterface {
+// userDataFromFrontend
+export interface User {
+  userId: string;
   email: string;
-  password?: string;
-  name: string;
-  _id?: string | Types.ObjectId;
-  oauth?: boolean;
 }
 
-// to be used for backend
+// userDataFromDatabase
+
 export interface UserDocInterface extends Document {
   email: string;
-  password?: string;
-  name: string;
-  _id: string | Types.ObjectId;
-  oauth?: boolean;
+  userId: string;
 }
 
-export interface LoginSignupResponse {
+// database-data-validation
+export interface LoginORSignUpResponse {
   message: string;
   token?: string;
   apiEndPoint?: string;
 }
 
-export interface LoginSignupRequestBody {
-  email: string;
-  password: string;
+export interface AlbumInterface {
+  albumId: string;
+  name: string;
+  description: string;
+  ownerId: Types.ObjectId;
+  sharedUsers: string[];
+}
+
+export interface AlbumDocInterface extends Document {
+  albumId: string;
+  name: string;
+  description: string;
+  ownerId: Types.ObjectId;
+  sharedUsers: string[];
+}
+
+export interface ImageInterface {
+  imageId: string;
+  albumId: string;
   name?: string;
+  tags?: string[];
+  person?: string;
+  isFavorite?: boolean;
+  comments?: string[];
+  size: string;
+}
+
+export interface ImageDocInterface extends Document {
+  imageId: string;
+  albumId: string;
+  name?: string;
+  tags?: string[];
+  person?: string;
+  isFavorite?: string;
+  comments?: string[];
+  size: string;
 }
