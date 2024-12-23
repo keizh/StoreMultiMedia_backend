@@ -36,24 +36,32 @@ export interface AlbumDocInterface extends Document {
   sharedUsers: string[];
 }
 
+export type commentOBJ = {
+  comment: string;
+  commentOwnerId: Types.ObjectId | string;
+  commentId?: string;
+};
+
 export interface ImageInterface {
   imageId: string;
+  imgOwnerId: string;
   albumId: string;
   name?: string;
   tags?: string[];
   person?: string;
   isFavorite?: boolean;
-  comments?: string[];
+  comments?: commentOBJ[];
   size: string;
 }
 
 export interface ImageDocInterface extends Document {
   imageId: string;
   albumId: string;
+  imgOwnerId: string;
   name?: string;
   tags?: string[];
   person?: string;
   isFavorite?: string;
-  comments?: string[];
+  comments?: commentOBJ[];
   size: string;
 }

@@ -8,6 +8,11 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
     imageId: {
       type: String,
       default: uuidv4,
+      index: true,
+    },
+    imgOwnerId: {
+      type: String,
+      required: true,
     },
     albumId: {
       type: String,
@@ -20,7 +25,19 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
       type: Boolean,
       default: false,
     },
-    comments: [String],
+    comments: [
+      {
+        comment: String,
+        commentOwnerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        commentId: {
+          type: String,
+          default: uuidv4,
+        },
+      },
+    ],
     size: String,
   },
   { timestamps: true }
