@@ -3,12 +3,14 @@ import AlbumModel from "../models/AlbumModel";
 import { AlbumDocInterface, AlbumInterface } from "../types";
 import ImageModel from "../models/ImageModel";
 import { v2 as cloudinary } from "cloudinary";
-
+import authorizedAccess from "../utils/authorizedAccess";
 export const AlbumRouter = Router();
+import mongoose from "mongoose";
 
 // RESPONSIBLE FOR CREATING NEW ALBUM
 AlbumRouter.post(
   "/",
+  authorizedAccess,
   async (
     req: Request<
       {},
@@ -48,25 +50,29 @@ AlbumRouter.post(
 // RESPONSIBLE FOR BOTH SHARING & UPDATING DESCRITION
 AlbumRouter.post(
   "/:albumId",
+  authorizedAccess,
   async (
     req: Request<
-      { albumId: string; sharedUsers: string[] },
+      { albumId: string },
       {},
       { sharedUsers: string[]; description: string },
       {}
     >,
-    res: Response<{ message: string }>
+    res: Response<{ message: string; updatedAlbum?: AlbumInterface }>
   ): Promise<void> => {
     const { description, sharedUsers } = req.body;
     const { albumId } = req.params;
+    console.log(description, sharedUsers);
+    console.log(albumId);
     //@ts-ignore
     const { userId } = req.user;
 
     try {
       const albumFetched: AlbumDocInterface | null = await AlbumModel.findOne({
         albumId,
+        ownerId: new mongoose.Types.ObjectId(userId),
       });
-
+      console.log(albumFetched);
       if (
         albumFetched &&
         albumFetched.ownerId.toString() === userId.toString()
@@ -78,7 +84,7 @@ AlbumRouter.post(
             { new: true }
           );
         if (updatedAlbum) {
-          res.status(200).json({ message: `Album  updated` });
+          res.status(200).json({ message: `Album  updated`, updatedAlbum });
         }
       } else {
         res.status(404).json({ message: `You are not Album Owner` });
@@ -94,6 +100,7 @@ AlbumRouter.post(
 // RESPONSIBLE FOR DELETING THE ALBUM
 AlbumRouter.delete(
   "/:albumId",
+  authorizedAccess,
   async (
     req: Request<{ albumId: string }>,
     res: Response<{ message: string }>
@@ -112,7 +119,7 @@ AlbumRouter.delete(
           { public_id: 1, _id: 0 }
         ).lean();
         const publicIDs = imgLinkedToThisAlbum.map((ele) => ele.public_id);
-
+        // console.log(publicIDs);
         const deletedAlbum: AlbumDocInterface | null =
           await AlbumModel.findOneAndDelete({ albumId });
         await cloudinary.api.delete_resources(publicIDs);
@@ -133,6 +140,7 @@ AlbumRouter.delete(
 // RESPONSIBLE FOR FETCHING ALL ALBUMS OWNED BY USER
 AlbumRouter.get(
   "/owner",
+  authorizedAccess,
   async (
     req,
     res: Response<{ message: string; albums?: AlbumDocInterface[] | [] }>
@@ -158,6 +166,7 @@ AlbumRouter.get(
 // RESPONSIBLE FOR FETCHING ALL ALBUMS SHARE TO USER
 AlbumRouter.get(
   "/shared",
+  authorizedAccess,
   async (
     req: Request,
     res: Response<{ message: string; albums?: AlbumDocInterface[] | [] }>
@@ -178,6 +187,25 @@ AlbumRouter.get(
           err instanceof Error ? err.message : "Failed to Fetch Albums"
         }`,
       });
+    }
+  }
+);
+
+AlbumRouter.get(
+  "/details/:albumId",
+  async (req: Request<{ albumId: string }, {}, {}, {}>, res) => {
+    try {
+      const { albumId } = req.params;
+      const data = await AlbumModel.findOne({ albumId });
+      if (data) {
+        res.status(200).json({ message: "Fetch Album details", album: data });
+      } else {
+        res.status(400).json({ message: "Failed to Fetch Album Details" });
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to get album Details";
+      res.status(500).json({ message });
     }
   }
 );

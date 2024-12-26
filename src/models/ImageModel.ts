@@ -25,6 +25,7 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
     albumId: {
       type: String,
       index: true,
+      required: true,
     },
     name: String,
     tags: [String],

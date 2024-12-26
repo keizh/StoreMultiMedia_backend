@@ -6,6 +6,7 @@ import UserModel from "../models/UserModel";
 import { User, LoginORSignUpResponse, UserDocInterface } from "../types";
 import "dotenv/config";
 import { OptionalId } from "mongodb";
+import authorizedAccess from "../utils/authorizedAccess";
 
 const authRouter = Router();
 
@@ -171,7 +172,9 @@ authRouter.get(
           process.env.SECRET_KEY ?? "",
           { expiresIn: "10h" }
         );
-        res.redirect(`${process.env.frontendURL}/user/photos?token=${token}`);
+        res.redirect(
+          `${process.env.frontendURL}/user/auth/photos?token=${token}`
+        );
         return;
       }
       // USER EXISTS
@@ -183,7 +186,9 @@ authRouter.get(
         process.env.SECRET_KEY ?? "",
         { expiresIn: "10h" }
       );
-      res.redirect(`${process.env.frontendURL}/user/photos?token=${token}`);
+      res.redirect(
+        `${process.env.frontendURL}/user/auth/photos?token=${token}`
+      );
       return;
     } catch (err: unknown) {
       res.redirect(
@@ -191,6 +196,25 @@ authRouter.get(
           err instanceof Error && err.message
         }`
       );
+    }
+  }
+);
+
+authRouter.get(
+  "/fetch/users",
+  authorizedAccess,
+  async (
+    req,
+    res: Response<{ message: string; userList?: UserDocInterface[] }>
+  ) => {
+    const { email } = req.user;
+    try {
+      const userList: UserDocInterface[] = await UserModel.find({
+        email: { $nin: [email] },
+      });
+      res.status(200).json({ message: "Users Fetched", userList });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch students" });
     }
   }
 );

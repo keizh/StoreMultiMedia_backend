@@ -3,30 +3,43 @@ import multer from "multer";
 import ImageModel from "../models/ImageModel";
 import { commentOBJ, ImageDocInterface } from "../types";
 import { v2 as cloudinary } from "cloudinary";
-
+import authorizedAccess from "../utils/authorizedAccess";
 const uploads = multer({
   storage: multer.diskStorage({}),
+  limits: {
+    fileSize: 11 * 1024 * 1024,
+  },
 });
+import { ImageInterface } from "../types";
 
 export const imageRouter = Router();
 // RESPONSIBLE FOR UPLOADING IMAGE
 imageRouter.post(
-  "/img",
-  uploads.array("image", 10),
-  async (req: Request, res: Response) => {
+  "/imgs",
+  authorizedAccess,
+  uploads.array("images", 10),
+  async (
+    req,
+    res: Response<{
+      message: string;
+      savedImages?: ImageInterface[];
+      tags?: string[];
+    }>
+  ) => {
     // @ts-ignore
     const files = req.files;
     const { userId } = req.user;
-    const { albumId, name, tags, isFavorite, person, comments } = req.body;
+    const { albumId, name, tags } = req.body;
     try {
+      console.log(`-->`, albumId, name, tags);
       const savedImages: ImageDocInterface[] = [];
-      files.forEach(async (file) => {
+      for (const file of files) {
         const uploaded = await cloudinary.uploader.upload(file.path);
-        const newImage: ImageDocInterface = new ImageModel({
+        const newImage = new ImageModel({
           imgURL: uploaded.secure_url,
           public_id: uploaded.public_id,
           imgOwnerId: userId,
-          albumId,
+          albumId: albumId,
           name,
           tags,
           size: file.size,
@@ -34,10 +47,14 @@ imageRouter.post(
           comments: [],
           isFavorite: false,
         });
+
         const newImageSaved: ImageDocInterface = await newImage.save();
         savedImages.push(newImageSaved);
-      });
-      res.status(200).json({ message: "Image has been uploaded", savedImages });
+      }
+      console.log(savedImages);
+      res
+        .status(200)
+        .json({ message: "Image has been uploaded", savedImages, tags });
     } catch (err) {
       const mssg =
         err instanceof Error ? err.message : "Failed to upload image";
@@ -60,6 +77,7 @@ imageRouter.post(
 // RESPONSIBLE FOR MARKING THE STAR FAVORITE
 imageRouter.post(
   "/isFavoriteIMG",
+  authorizedAccess,
   async (
     req: Request<{}, {}, { isFavorite: boolean }, { imageId: string }>,
     res: Response<{ message: string }>
@@ -82,6 +100,7 @@ imageRouter.post(
 // RESPONSIBLE FOR ADDING COMMENT
 imageRouter.post(
   "/comment/add",
+  authorizedAccess,
   async (
     req: Request<{}, {}, { imageId: string; comment: string }, {}>,
     res: Response
@@ -114,6 +133,7 @@ imageRouter.post(
 // RESPONSIBLE FOR REMOVING COMMENT
 imageRouter.post(
   "/comment/remove",
+  authorizedAccess,
   async (
     req: Request<
       {},
@@ -149,6 +169,7 @@ imageRouter.post(
 
 imageRouter.delete(
   `/delete/:imageId`,
+  authorizedAccess,
   async (
     req: Request<{ imageId: string }, {}, {}, {}>,
     res: Response<{ message: string }>
@@ -181,6 +202,7 @@ imageRouter.delete(
 
 imageRouter.get(
   "/:albumId",
+  authorizedAccess,
   async (
     req: Request<{ albumId: string }, {}, {}, {}>,
     res: Response<{
@@ -189,12 +211,14 @@ imageRouter.get(
       tags?: string[];
     }>
   ): Promise<void> => {
+    console.log(`line 202`);
     const { albumId } = req.params;
+    console.log(albumId);
     try {
       const images: ImageDocInterface[] | [] = await ImageModel.find({
         albumId,
       });
-
+      console.log(images);
       const tags = Array.isArray(images)
         ? Array.from(
             new Set(
@@ -207,20 +231,24 @@ imageRouter.get(
             )
           )
         : [];
-
+      console.log(tags);
+      console.log(`line 221`);
       res
         .status(200)
         .json({ message: "Images have been fetched", images, tags });
+      console.log(`line 225`);
     } catch (err: unknown) {
       const mssg =
         err instanceof Error ? err.message : "Failed to delete Image";
       res.status(500).json({ message: mssg });
+      console.log(`line 230`);
     }
   }
 );
 
 imageRouter.get(
   "/:albumId/favorite",
+  authorizedAccess,
   async (
     req: Request<{ albumId: string }, {}, {}, {}>,
     res: Response<{ images?: ImageDocInterface[] | null; message: string }>
@@ -242,6 +270,7 @@ imageRouter.get(
 
 imageRouter.get(
   "/:albumId/tags",
+  authorizedAccess,
   async (
     req: Request<{ albumId: string }, {}, {}, { tagName: string }>,
     res: Response<{ images?: ImageDocInterface[] | null; message: string }>

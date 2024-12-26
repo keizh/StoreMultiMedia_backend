@@ -14,7 +14,6 @@ declare global {
 
 const authorizedAccess = (req: Request, res: Response, next: NextFunction) => {
   const authorization: string | undefined = req.headers.authorization;
-
   if (!authorization) {
     return res.status(400).json({ message: "NO TOKEN" });
   }
