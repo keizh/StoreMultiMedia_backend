@@ -122,6 +122,7 @@ AlbumRouter.delete(
         // console.log(publicIDs);
         const deletedAlbum: AlbumDocInterface | null =
           await AlbumModel.findOneAndDelete({ albumId });
+        await ImageModel.deleteMany({ albumId });
         await cloudinary.api.delete_resources(publicIDs);
         res.status(200).json({ message: "Album Successfully deleted" });
       } else if (album && album?.ownerId.toString() != userId.toString()) {

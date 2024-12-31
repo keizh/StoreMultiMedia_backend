@@ -102,13 +102,22 @@ imageRouter.post(
   "/comment/add",
   authorizedAccess,
   async (
-    req: Request<{}, {}, { imageId: string; comment: string }, {}>,
+    req: Request<
+      {},
+      {},
+      { imageId: string; comment: string; commentId: string },
+      {}
+    >,
     res: Response
   ): Promise<void> => {
-    const { comment, imageId } = req.body;
+    const { comment, imageId, commentId } = req.body;
     const { userId } = req.user;
     try {
-      const comment_OBJ: commentOBJ = { comment, commentOwnerId: userId };
+      const comment_OBJ: commentOBJ = {
+        comment,
+        commentOwnerId: userId,
+        commentId,
+      };
       const imageWithCommentAdded: ImageDocInterface | null =
         await ImageModel.findOneAndUpdate(
           {
@@ -119,7 +128,7 @@ imageRouter.post(
           }
         );
       if (imageWithCommentAdded) {
-        res.status(200).json({ message: `Comment added` });
+        res.status(200).json({ message: `Comment added`, comment_OBJ });
       } else {
         res.status(404).json({ message: `No such Image Exists` });
       }
@@ -177,15 +186,19 @@ imageRouter.delete(
     try {
       const { userId } = req.user;
       const { imageId } = req.params;
+      console.log(`imageId`, imageId);
+      console.log(`userId`, userId);
       const Img: ImageDocInterface | null = await ImageModel.findOne({
         imageId,
         imgOwnerId: userId,
       });
+      console.log(Img);
       const deletedImg: ImageDocInterface | null =
         await ImageModel.findOneAndDelete({
           imageId,
           imgOwnerId: userId,
         });
+      console.log(deletedImg);
       if (deletedImg && Img) {
         await cloudinary.uploader.destroy(Img.public_id);
         res.status(200).json({ message: `Image Successfully deleted` });
