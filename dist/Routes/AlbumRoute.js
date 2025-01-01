@@ -55,7 +55,6 @@ exports.AlbumRouter.post("/:albumId", authorizedAccess_1.default, (req, res) => 
     const { albumId } = req.params;
     console.log(description, sharedUsers);
     console.log(albumId);
-    //@ts-ignore
     const { userId } = req.user;
     try {
         const albumFetched = yield AlbumModel_1.default.findOne({

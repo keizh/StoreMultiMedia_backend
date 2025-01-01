@@ -13,7 +13,7 @@ const ImageSchema = new mongoose_1.default.Schema({
     },
     imgURL: {
         type: String,
-        require: true,
+        required: true,
     },
     imgOwnerId: {
         type: String,

@@ -20,13 +20,15 @@ function dbConnect() {
         var _a;
         try {
             const mongoURL = (_a = process.env.MONGODB) !== null && _a !== void 0 ? _a : "";
-            const dbConnectObject = yield mongoose_1.default.connect(mongoURL);
-            if (dbConnectObject) {
-                console.log(`Successfully made MONGODB connection`);
+            if (mongoURL == "") {
+                console.error(`SERVER_CONFIGURATION_ERROR : no mongodn connect url provided`);
+                throw new Error("No MONGODB_URL");
             }
+            const dbConnectObject = yield mongoose_1.default.connect(mongoURL);
+            console.log(`Successfully made MONGODB connection`);
         }
         catch (error) {
-            console.log(`Failed to Make DB Connection`, error instanceof Error ? error.message : "Unknown error occurred");
+            console.error(`Failed to Make DB Connection`, error instanceof Error ? error.message : "Unknown error occurred");
         }
     });
 }

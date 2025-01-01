@@ -27,7 +27,6 @@ const uploads = (0, multer_1.default)({
 exports.imageRouter = (0, express_1.Router)();
 // RESPONSIBLE FOR UPLOADING IMAGE
 exports.imageRouter.post("/imgs", authorizedAccess_1.default, uploads.array("images", 10), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // @ts-ignore
     const files = req.files;
     const { userId } = req.user;
     const { albumId, name, tags } = req.body;
@@ -61,16 +60,6 @@ exports.imageRouter.post("/imgs", authorizedAccess_1.default, uploads.array("ima
         res.status(500).json({ message: mssg });
     }
 }));
-// imageId: string;
-// imgURL: string;
-// imgOwnerId: string;
-// albumId: string;
-// name?: string;
-// tags?: string[];
-// person?: string;
-// isFavorite?: boolean;
-// comments?: commentOBJ[];
-// size: string;
 // RESPONSIBLE FOR MARKING THE STAR FAVORITE
 exports.imageRouter.post("/isFavoriteIMG", authorizedAccess_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { imageId } = req.query;
@@ -214,9 +203,11 @@ exports.imageRouter.get("/:albumId/tags", authorizedAccess_1.default, (req, res)
             tags: { $in: [tagName] },
         });
         res.status(200).json({ message: "Images have been fetched", images });
+        return;
     }
     catch (err) {
         const mssg = err instanceof Error ? err.message : "Failed to delete Image";
         res.status(500).json({ message: mssg });
+        return;
     }
 }));
