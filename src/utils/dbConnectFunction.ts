@@ -5,12 +5,16 @@ import mongoose from "mongoose";
 async function dbConnect(): Promise<void> {
   try {
     const mongoURL: string = process.env.MONGODB ?? "";
-    const dbConnectObject = await mongoose.connect(mongoURL);
-    if (dbConnectObject) {
-      console.log(`Successfully made MONGODB connection`);
+    if (mongoURL == "") {
+      console.error(
+        `SERVER_CONFIGURATION_ERROR : no mongodn connect url provided`
+      );
+      throw new Error("No MONGODB_URL");
     }
+    const dbConnectObject = await mongoose.connect(mongoURL);
+    console.log(`Successfully made MONGODB connection`);
   } catch (error: unknown) {
-    console.log(
+    console.error(
       `Failed to Make DB Connection`,
       error instanceof Error ? error.message : "Unknown error occurred"
     );

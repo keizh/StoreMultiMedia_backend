@@ -1,4 +1,3 @@
-import { MongoOIDCError } from "mongodb";
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { ImageInterface } from "../types";
@@ -12,7 +11,7 @@ const ImageSchema = new mongoose.Schema<ImageInterface>(
     },
     imgURL: {
       type: String,
-      require: true,
+      required: true,
     },
     imgOwnerId: {
       type: String,

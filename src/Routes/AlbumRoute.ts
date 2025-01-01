@@ -64,7 +64,7 @@ AlbumRouter.post(
     const { albumId } = req.params;
     console.log(description, sharedUsers);
     console.log(albumId);
-    //@ts-ignore
+
     const { userId } = req.user;
 
     try {

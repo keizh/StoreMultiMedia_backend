@@ -1,5 +1,15 @@
 import { Document, Types } from "mongoose";
 
+import * as Express from "express";
+
+declare global {
+  namespace Express {
+    interface Request {
+      files?: Express.Multer.File[]; // For multiple files
+    }
+  }
+}
+
 // userDataFromFrontend
 export interface User {
   userId: string;
@@ -20,7 +30,7 @@ export interface LoginORSignUpResponse {
   apiEndPoint?: string;
 }
 
-export interface AlbumInterface {
+export interface AlbumBase {
   albumId: string;
   name: string;
   description: string;
@@ -28,13 +38,9 @@ export interface AlbumInterface {
   sharedUsers: string[];
 }
 
-export interface AlbumDocInterface extends Document {
-  albumId: string;
-  name: string;
-  description: string;
-  ownerId: Types.ObjectId;
-  sharedUsers: string[];
-}
+export interface AlbumInterface extends AlbumBase {}
+
+export interface AlbumDocInterface extends AlbumBase, Document {}
 
 export type commentOBJ = {
   comment: string;

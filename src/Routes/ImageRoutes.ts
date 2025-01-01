@@ -19,15 +19,14 @@ imageRouter.post(
   authorizedAccess,
   uploads.array("images", 10),
   async (
-    req,
+    req: Request,
     res: Response<{
       message: string;
       savedImages?: ImageInterface[];
       tags?: string[];
     }>
   ) => {
-    // @ts-ignore
-    const files = req.files;
+    const files = req.files as Express.Multer.File[];
     const { userId } = req.user;
     const { albumId, name, tags } = req.body;
     try {
@@ -62,17 +61,6 @@ imageRouter.post(
     }
   }
 );
-
-// imageId: string;
-// imgURL: string;
-// imgOwnerId: string;
-// albumId: string;
-// name?: string;
-// tags?: string[];
-// person?: string;
-// isFavorite?: boolean;
-// comments?: commentOBJ[];
-// size: string;
 
 // RESPONSIBLE FOR MARKING THE STAR FAVORITE
 imageRouter.post(
@@ -296,10 +284,12 @@ imageRouter.get(
         tags: { $in: [tagName] },
       });
       res.status(200).json({ message: "Images have been fetched", images });
+      return;
     } catch (err: unknown) {
       const mssg =
         err instanceof Error ? err.message : "Failed to delete Image";
       res.status(500).json({ message: mssg });
+      return;
     }
   }
 );
