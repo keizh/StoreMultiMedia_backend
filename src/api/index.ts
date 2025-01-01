@@ -15,10 +15,10 @@ const corsOptions: {
   allowedMethods: string[];
   allowedHeaders: string[];
   optionsSuccessStatus: number;
-  credentails?: boolean;
+  credentials?: boolean;
 } = {
   origin: "*",
-  allowedMethods: ["GET", "PUSH", "PUT", "PATCH"],
+  allowedMethods: ["GET", "POST", "PUT", "PATCH"],
   allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   //   credentails: true,
   optionsSuccessStatus: 200,
@@ -26,7 +26,7 @@ const corsOptions: {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
