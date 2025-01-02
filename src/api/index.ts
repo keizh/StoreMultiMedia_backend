@@ -11,13 +11,13 @@ dbConnect();
 const app: Express = express();
 
 const corsOptions: {
-  origin: string;
+  origin: string[];
   allowedMethods: string[];
   allowedHeaders: string[];
   optionsSuccessStatus: number;
   credentials?: boolean;
 } = {
-  origin: "*",
+  origin: ["https://kovias-pix-frontend.vercel.app", "http://localhost:5173"],
   allowedMethods: ["GET", "POST", "PUT", "PATCH"],
   allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   //   credentails: true,
