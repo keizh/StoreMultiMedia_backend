@@ -40,7 +40,7 @@ imageRouter.post(
           imgOwnerId: userId,
           albumId: albumId,
           name,
-          tags,
+          tags: JSON.parse(tags),
           size: file.size,
           person: "",
           comments: [],
@@ -51,9 +51,11 @@ imageRouter.post(
         savedImages.push(newImageSaved);
       }
       console.log(savedImages);
-      res
-        .status(200)
-        .json({ message: "Image has been uploaded", savedImages, tags });
+      res.status(200).json({
+        message: "Image has been uploaded",
+        savedImages,
+        tags: savedImages[0].tags,
+      });
     } catch (err) {
       const mssg =
         err instanceof Error ? err.message : "Failed to upload image";
