@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/api/index.js",
-    "build": "rimraf dist && tsc",
+    "build": "rimraf dist && tsc ",
     "dev": "ts-node-dev --respawn --transpile-only --watch src src/api/index.ts",
     "ts.check": "tsc --project tsconfig.json"
   },
