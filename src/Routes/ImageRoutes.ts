@@ -10,6 +10,7 @@ const uploads = multer({
     fileSize: 11 * 1024 * 1024,
   },
 });
+
 import { ImageInterface } from "../types";
 
 export const imageRouter = Router();
@@ -295,3 +296,47 @@ imageRouter.get(
     }
   }
 );
+
+// responsible for marking image as favorite
+imageRouter.post("/markFavorite/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: `Image Id not provided` });
+      return;
+    }
+
+    const imageIsMadeFavorite = await ImageModel.findByIdAndUpdate(
+      id,
+      {
+        $set: { isFavorite: true },
+      },
+      { new: true }
+    );
+
+    res.status(200).json({ message: `Image marked favorite` });
+  } catch (err) {
+    res.status(500).json({ message: `Failed to Mark Favorite` });
+  }
+});
+
+// responsible for unmarking image as favorite
+imageRouter.post("/markUnFavorite/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: "Image Id not provided" });
+      return;
+    }
+
+    const imageIsMarkedNonFavorite = await ImageModel.findByIdAndUpdate(
+      id,
+      { $set: { isFavorite: false } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Image unMarked as favorite" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to unMark Favorite" });
+  }
+});
