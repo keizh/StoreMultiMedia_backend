@@ -11,7 +11,7 @@ dbConnect();
 const app: Express = express();
 
 const corsOptions: {
-  origin: string[];
+  origin: string | string[];
   allowedMethods: string[];
   allowedHeaders: string[];
   optionsSuccessStatus: number;

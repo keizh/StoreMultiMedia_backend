@@ -62,8 +62,8 @@ AlbumRouter.post(
   ): Promise<void> => {
     const { description, sharedUsers } = req.body;
     const { albumId } = req.params;
-    console.log(description, sharedUsers);
-    console.log(albumId);
+    // console.log(description, sharedUsers);
+    // console.log(albumId);
 
     const { userId } = req.user;
 
@@ -72,7 +72,7 @@ AlbumRouter.post(
         albumId,
         ownerId: new mongoose.Types.ObjectId(userId),
       });
-      console.log(albumFetched);
+      // console.log(albumFetched);
       if (
         albumFetched &&
         albumFetched.ownerId.toString() === userId.toString()
@@ -201,6 +201,8 @@ AlbumRouter.get(
     try {
       const { albumId } = req.params;
       const data = await AlbumModel.findOne({ albumId });
+      console.log(`204 --->`, data);
+      console.log(`205 ---> albumId`, albumId);
       if (data) {
         res.status(200).json({ message: "Fetch Album details", album: data });
       } else {

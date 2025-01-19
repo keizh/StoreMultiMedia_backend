@@ -31,7 +31,7 @@ imageRouter.post(
     const { userId } = req.user;
     const { albumId, name, tags } = req.body;
     try {
-      console.log(`-->`, albumId, name, tags);
+      // console.log(`-->`, albumId, name, tags);
       const savedImages: ImageDocInterface[] = [];
       for (const file of files) {
         const uploaded = await cloudinary.uploader.upload(file.path);
@@ -51,7 +51,7 @@ imageRouter.post(
         const newImageSaved: ImageDocInterface = await newImage.save();
         savedImages.push(newImageSaved);
       }
-      console.log(savedImages);
+      // console.log(savedImages);
       res.status(200).json({
         message: "Image has been uploaded",
         savedImages,
@@ -177,13 +177,13 @@ imageRouter.delete(
     try {
       const { userId } = req.user;
       const { imageId } = req.params;
-      console.log(`imageId`, imageId);
-      console.log(`userId`, userId);
+      // console.log(`imageId`, imageId);
+      // console.log(`userId`, userId);
       const Img: ImageDocInterface | null = await ImageModel.findOne({
         imageId,
         imgOwnerId: userId,
       });
-      console.log(Img);
+      // console.log(Img);
       const deletedImg: ImageDocInterface | null =
         await ImageModel.findOneAndDelete({
           imageId,
@@ -215,14 +215,14 @@ imageRouter.get(
       tags?: string[];
     }>
   ): Promise<void> => {
-    console.log(`line 202`);
+    // console.log(`line 202`);
     const { albumId } = req.params;
-    console.log(albumId);
+    // console.log(albumId);
     try {
       const images: ImageDocInterface[] | [] = await ImageModel.find({
         albumId,
       });
-      console.log(images);
+      // console.log(images);
       const tags = Array.isArray(images)
         ? Array.from(
             new Set(
@@ -235,17 +235,17 @@ imageRouter.get(
             )
           )
         : [];
-      console.log(tags);
-      console.log(`line 221`);
+      // console.log(tags);
+      // console.log(`line 221`);
       res
         .status(200)
         .json({ message: "Images have been fetched", images, tags });
-      console.log(`line 225`);
+      // console.log(`line 225`);
     } catch (err: unknown) {
       const mssg =
         err instanceof Error ? err.message : "Failed to delete Image";
       res.status(500).json({ message: mssg });
-      console.log(`line 230`);
+      // console.log(`line 230`);
     }
   }
 );
@@ -298,7 +298,8 @@ imageRouter.get(
 );
 
 // responsible for marking image as favorite
-imageRouter.post("/markFavorite/:id", async (req, res) => {
+imageRouter.post("/markFavorite/:id", authorizedAccess, async (req, res) => {
+  // console.log(`line 302 haws been hit ----->`);
   try {
     const { id } = req.params;
     if (!id) {
@@ -314,14 +315,15 @@ imageRouter.post("/markFavorite/:id", async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ message: `Image marked favorite` });
+    res.status(200).json({ message: `Image marked liked` });
   } catch (err) {
-    res.status(500).json({ message: `Failed to Mark Favorite` });
+    res.status(500).json({ message: `Failed to Like Image` });
   }
 });
 
 // responsible for unmarking image as favorite
-imageRouter.post("/markUnFavorite/:id", async (req, res) => {
+imageRouter.post("/markUnFavorite/:id", authorizedAccess, async (req, res) => {
+  // console.log(`line 326 haws been hit ----->`);
   try {
     const { id } = req.params;
     if (!id) {
@@ -335,8 +337,8 @@ imageRouter.post("/markUnFavorite/:id", async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ message: "Image unMarked as favorite" });
+    res.status(200).json({ message: "Img has been unliked" });
   } catch (err) {
-    res.status(500).json({ message: "Failed to unMark Favorite" });
+    res.status(500).json({ message: "Failed to unLike Image" });
   }
 });
