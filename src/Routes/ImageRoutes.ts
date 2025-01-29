@@ -7,7 +7,7 @@ import authorizedAccess from "../utils/authorizedAccess";
 const uploads = multer({
   storage: multer.diskStorage({}),
   limits: {
-    fileSize: 11 * 1024 * 1024,
+    fileSize: 4 * 1024 * 1024,
   },
 });
 
